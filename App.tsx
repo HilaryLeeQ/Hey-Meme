@@ -69,6 +69,13 @@ export default function App() {
     return '';
   };
 
+const [apiKeys, setApiKeys] = useState<ApiKeys>(() => ({
+  giphy: localStorage.getItem('giphy_key') || getEnvVar('GIPHY_API_KEY', 'VITE_GIPHY_API_KEY', 'REACT_APP_GIPHY_API_KEY'),
+  tenor: localStorage.getItem('tenor_key') || getEnvVar('TENOR_API_KEY', 'VITE_TENOR_API_KEY', 'REACT_APP_TENOR_API_KEY'),
+  openai: localStorage.getItem('openai_key') || ''
+}));
+  
+
   // Typewriter effect state
   const [placeholder, setPlaceholder] = useState('');
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
