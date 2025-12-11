@@ -48,26 +48,7 @@ export default function App() {
   // 1. Check LocalStorage (User override) - Highest priority
   // 2. Check Environment Variables (Developer default) - with multiple prefix support
   // 3. Fallback to empty string (Force user input)
-  
-  const getEnvVar = (baseKey: string, viteKey: string, reactKey: string): string => {
-    try {
-      // ✅ 第一步：優先檢查 Vite 的標準寫法 (這是最重要的修正！)
-      // 這裡直接使用 import.meta.env 來讀取傳進來的 viteKey (例如 VITE_GIPHY_API_KEY)
-      if (import.meta.env && import.meta.env[viteKey]) {
-        return import.meta.env[viteKey];
-      }
 
-      // ⚠️ 第二步：為了相容性，保留原本的檢查 (但在 Vite 裡通常讀不到)
-      if (typeof process !== 'undefined' && process.env) {
-        if (process.env[baseKey]) return process.env[baseKey] || '';
-        if (process.env[viteKey]) return process.env[viteKey] || '';
-        if (process.env[reactKey]) return process.env[reactKey] || '';
-      }
-    } catch (e) {
-      // 忽略錯誤
-    }
-    return '';
-  };
 
 const [apiKeys, setApiKeys] = useState<ApiKeys>(() => {
     // 捨棄 window.RUNTIME_CONFIG，讓它直接走 VITE_API_KEY (我們已經設定好了)
