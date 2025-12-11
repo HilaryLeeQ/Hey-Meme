@@ -45,13 +45,26 @@ export default function App() {
   const [mascotUrl, setMascotUrl] = useState(() => MASCOT_IMAGES[Math.floor(Math.random() * MASCOT_IMAGES.length)]);
   
   // API Keys Initialization Strategy:
-  // 1. Check LocalStorage (User override)
-  // 2. Check Environment Variables (Developer default)
+  // 1. Check LocalStorage (User override) - Highest priority
+  // 2. Check Environment Variables (Developer default) - with multiple prefix support
   // 3. Fallback to empty string (Force user input)
-  // Note: OpenAI key strictly uses LocalStorage only to prevent cost leakage.
+  
+  const getEnvVar = (baseKey: string, viteKey: string, reactKey: string): string => {
+    // We explicitly check specific process.env properties because bundlers (Webpack/Vite)
+    // replace these exact strings at build time. Dynamic access like process.env[key] often fails.
+    try {
+      if (process.env[baseKey]) return process.env[baseKey] || '';
+      if (process.env[viteKey]) return process.env[viteKey] || '';
+      if (process.env[reactKey]) return process.env[reactKey] || '';
+    } catch (e) {
+      // In some strict environments accessing process might fail
+    }
+    return '';
+  };
+
   const [apiKeys, setApiKeys] = useState<ApiKeys>(() => ({
-    giphy: localStorage.getItem('giphy_key') || process.env.GIPHY_API_KEY || '',
-    tenor: localStorage.getItem('tenor_key') || process.env.TENOR_API_KEY || '',
+    giphy: localStorage.getItem('giphy_key') || getEnvVar('GIPHY_API_KEY', 'VITE_GIPHY_API_KEY', 'REACT_APP_GIPHY_API_KEY'),
+    tenor: localStorage.getItem('tenor_key') || getEnvVar('TENOR_API_KEY', 'VITE_TENOR_API_KEY', 'REACT_APP_TENOR_API_KEY'),
     openai: localStorage.getItem('openai_key') || ''
   }));
 
