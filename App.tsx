@@ -51,18 +51,25 @@ export default function App() {
 
 
 const [apiKeys, setApiKeys] = useState<ApiKeys>(() => {
-    // 捨棄 window.RUNTIME_CONFIG，讓它直接走 VITE_API_KEY (我們已經設定好了)
-
-    // 💡 我們的 VITE_API_KEY 必須透過這個方式才能讀到值
+    // 💡 讀取 Cloud Run 設定的變數 (這是我們的目標)
     const envGiphy = import.meta.env.VITE_GIPHY_API_KEY || '';
     const envTenor = import.meta.env.VITE_TENOR_API_KEY || '';
+    const envGemini = import.meta.env.VITE_GEMINI_API_KEY || '';
+    // 如果有 OpenAI 也要加上：
+    const envOpenAI = import.meta.env.VITE_OPENAI_API_KEY || '';
+
 
     return {
-      // ✅ VITE_API_KEY 變成第一優先！
+      // ✅ 絕對優先使用 VITE 環境變數！
+      //    如果 VITE 變數有值，就忽略其他所有檢查。
       giphy: envGiphy || localStorage.getItem('giphy_key') || '',
       tenor: envTenor || localStorage.getItem('tenor_key') || '',
-      // OpenAI 留給使用者自己手動輸入
-      openai: localStorage.getItem('openai_key') || ''
+      
+      // 處理 OpenAI 和 Gemini 的邏輯
+      openai: envOpenAI || localStorage.getItem('openai_key') || '',
+      // ⚠️ 如果你的專案有專門存 Gemini Key 的位置，也要確保它優先使用 envGemini
+      gemini: envGemini || localStorage.getItem('gemini_key') || '', 
+      // 👆 注意：這行可能需要根據你的實際程式碼變數名稱來調整
     };
   });
   
