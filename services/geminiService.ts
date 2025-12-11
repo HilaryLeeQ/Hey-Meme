@@ -261,7 +261,7 @@ export const translateQueryToKeywords = async (userQuery: string, openAiKey?: st
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.0-flash-exp",
       contents: userQuery,
       config: {
         systemInstruction: systemInstruction + " Return valid JSON: {\"keywords\": \"...\"}",
@@ -316,7 +316,7 @@ export const translateQueryToKeywords = async (userQuery: string, openAiKey?: st
 
 export const createChatSession = (systemInstruction: string) => {
   return ai.chats.create({
-    model: "gemini-2.5-flash",
+    model: "gemini-2.0-flash-exp",
     config: {
       systemInstruction: systemInstruction,
       temperature: 0.9,
