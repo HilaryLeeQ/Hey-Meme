@@ -51,25 +51,34 @@ export default function App() {
 
 
 const [apiKeys, setApiKeys] = useState<ApiKeys>(() => {
-    // 💡 讀取 Cloud Run 設定的變數 (這是我們的目標)
-    const envGiphy = import.meta.env.VITE_GIPHY_API_KEY || '';
-    const envTenor = import.meta.env.VITE_TENOR_API_KEY || '';
-    const envGemini = import.meta.env.VITE_GEMINI_API_KEY || '';
-    // 如果有 OpenAI 也要加上：
-    const envOpenAI = import.meta.env.VITE_OPENAI_API_KEY || '';
+    // ✅ 從 runtime config 讀取（Cloud Run 會在啟動時替換這些值）
+    const runtimeConfig = (window as any).ENV_CONFIG || {};
+    
+    // 清理掉 placeholder（如果沒被替換，就當作空字串）
+    const cleanKey = (key: string) => {
+      if (!key || key.startsWith('__')) return '';
+      return key;
+    };
+    
+    const envGiphy = cleanKey(runtimeConfig.GIPHY_API_KEY);
+    const envTenor = cleanKey(runtimeConfig.TENOR_API_KEY);
+    const envOpenAI = cleanKey(runtimeConfig.OPENAI_API_KEY);
+    const envGemini = cleanKey(runtimeConfig.GEMINI_API_KEY);
 
+    // Debug log（部署後可以刪掉）
+    console.log('🔍 Runtime Config:', runtimeConfig);
+    console.log('✅ Loaded Keys:', { 
+      giphy: envGiphy ? '✓' : '✗',
+      tenor: envTenor ? '✓' : '✗',
+      openai: envOpenAI ? '✓' : '✗',
+      gemini: envGemini ? '✓' : '✗'
+    });
 
     return {
-      // ✅ 絕對優先使用 VITE 環境變數！
-      //    如果 VITE 變數有值，就忽略其他所有檢查。
       giphy: envGiphy || localStorage.getItem('giphy_key') || '',
       tenor: envTenor || localStorage.getItem('tenor_key') || '',
-      
-      // 處理 OpenAI 和 Gemini 的邏輯
       openai: envOpenAI || localStorage.getItem('openai_key') || '',
-      // ⚠️ 如果你的專案有專門存 Gemini Key 的位置，也要確保它優先使用 envGemini
-      gemini: envGemini || localStorage.getItem('gemini_key') || '', 
-      // 👆 注意：這行可能需要根據你的實際程式碼變數名稱來調整
+      gemini: envGemini || localStorage.getItem('gemini_key') || ''
     };
   });
   
