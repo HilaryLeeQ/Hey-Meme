@@ -8,16 +8,22 @@ RUN npm install
 
 COPY . .
 
-# 讓 Node.js 環境下的 process.env 也被設定，以防程式碼仍在使用舊的寫法
-ENV GIPHY_API_KEY=$VITE_GIPHY_API_KEY
-ENV TENOR_API_KEY=$VITE_TENOR_API_KEY
-ENV OPENAI_API_KEY=$VITE_OPENAI_API_KEY
-# 這是為了配合你的程式碼裡面有檢查的名稱
+# ✅ 在 build 之前設定 ARG，讓 Vite 在打包時就能讀到
+ARG VITE_GIPHY_API_KEY
+ARG VITE_TENOR_API_KEY
+ARG VITE_OPENAI_API_KEY
+ARG VITE_GEMINI_API_KEY
+
+# ✅ 設定為環境變數
+ENV VITE_GIPHY_API_KEY=$VITE_GIPHY_API_KEY
+ENV VITE_TENOR_API_KEY=$VITE_TENOR_API_KEY
+ENV VITE_OPENAI_API_KEY=$VITE_OPENAI_API_KEY
+ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
+
+# ✅ 現在 build，Vite 會把這些值打包進去
+RUN npm run build 
 
 EXPOSE 8080
 
-# 步驟 1: 在容器建置階段就完成打包 (Build)
-# 這樣在 CMD 階段就不會浪費時間了
-RUN npm run build 
-
-CMD ["/bin/sh", "-c", "npm run build && npm run start"]
+# ✅ 直接啟動 preview server
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "8080"]
