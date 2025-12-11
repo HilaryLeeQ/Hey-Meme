@@ -1,0 +1,5 @@
+{
+  "name": "HeyMeme - AI Meme Finder",
+  "description": "Describe your mood in natural language, and let AI find the perfect meme for you using Gemini and Giphy/Tenor APIs.",
+  "requestFramePermissions": []
+}
