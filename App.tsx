@@ -69,11 +69,21 @@ export default function App() {
     return '';
   };
 
-const [apiKeys, setApiKeys] = useState<ApiKeys>(() => ({
-  giphy: localStorage.getItem('giphy_key') || getEnvVar('GIPHY_API_KEY', 'VITE_GIPHY_API_KEY', 'REACT_APP_GIPHY_API_KEY'),
-  tenor: localStorage.getItem('tenor_key') || getEnvVar('TENOR_API_KEY', 'VITE_TENOR_API_KEY', 'REACT_APP_TENOR_API_KEY'),
-  openai: localStorage.getItem('openai_key') || ''
-}));
+const [apiKeys, setApiKeys] = useState<ApiKeys>(() => {
+    // 捨棄 window.RUNTIME_CONFIG，讓它直接走 VITE_API_KEY (我們已經設定好了)
+
+    // 💡 我們的 VITE_API_KEY 必須透過這個方式才能讀到值
+    const envGiphy = import.meta.env.VITE_GIPHY_API_KEY || '';
+    const envTenor = import.meta.env.VITE_TENOR_API_KEY || '';
+
+    return {
+      // ✅ VITE_API_KEY 變成第一優先！
+      giphy: envGiphy || localStorage.getItem('giphy_key') || '',
+      tenor: envTenor || localStorage.getItem('tenor_key') || '',
+      // OpenAI 留給使用者自己手動輸入
+      openai: localStorage.getItem('openai_key') || ''
+    };
+  });
   
 
   // Typewriter effect state
