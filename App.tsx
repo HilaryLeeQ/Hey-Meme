@@ -50,23 +50,24 @@ export default function App() {
   // 3. Fallback to empty string (Force user input)
   
   const getEnvVar = (baseKey: string, viteKey: string, reactKey: string): string => {
-    // We explicitly check specific process.env properties because bundlers (Webpack/Vite)
-    // replace these exact strings at build time. Dynamic access like process.env[key] often fails.
     try {
-      if (process.env[baseKey]) return process.env[baseKey] || '';
-      if (process.env[viteKey]) return process.env[viteKey] || '';
-      if (process.env[reactKey]) return process.env[reactKey] || '';
+      // ✅ 第一步：優先檢查 Vite 的標準寫法 (這是最重要的修正！)
+      // 這裡直接使用 import.meta.env 來讀取傳進來的 viteKey (例如 VITE_GIPHY_API_KEY)
+      if (import.meta.env && import.meta.env[viteKey]) {
+        return import.meta.env[viteKey];
+      }
+
+      // ⚠️ 第二步：為了相容性，保留原本的檢查 (但在 Vite 裡通常讀不到)
+      if (typeof process !== 'undefined' && process.env) {
+        if (process.env[baseKey]) return process.env[baseKey] || '';
+        if (process.env[viteKey]) return process.env[viteKey] || '';
+        if (process.env[reactKey]) return process.env[reactKey] || '';
+      }
     } catch (e) {
-      // In some strict environments accessing process might fail
+      // 忽略錯誤
     }
     return '';
   };
-
-  const [apiKeys, setApiKeys] = useState<ApiKeys>(() => ({
-    giphy: localStorage.getItem('giphy_key') || getEnvVar('GIPHY_API_KEY', 'VITE_GIPHY_API_KEY', 'REACT_APP_GIPHY_API_KEY'),
-    tenor: localStorage.getItem('tenor_key') || getEnvVar('TENOR_API_KEY', 'VITE_TENOR_API_KEY', 'REACT_APP_TENOR_API_KEY'),
-    openai: localStorage.getItem('openai_key') || ''
-  }));
 
   // Typewriter effect state
   const [placeholder, setPlaceholder] = useState('');
