@@ -2,7 +2,18 @@ import { GoogleGenAI, Type, FunctionDeclaration, SchemaType } from "@google/gena
 
 // Initialize the client with the environment variable
 // Note: In this environment, process.env.API_KEY is guaranteed to be present and valid.
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+// 從 runtime config 讀取 API Key（Cloud Run 環境變數）
+const runtimeConfig = (typeof window !== 'undefined' && (window as any).ENV_CONFIG) || {};
+const cleanKey = (key: string) => {
+  if (!key || key.startsWith('__')) return '';
+  return key;
+};
+
+const apiKey = cleanKey(runtimeConfig.GEMINI_API_KEY) || 
+               import.meta.env.VITE_GEMINI_API_KEY || 
+               '';
+
+const ai = new GoogleGenAI({ apiKey });
 
 export interface Persona {
   id: string;
