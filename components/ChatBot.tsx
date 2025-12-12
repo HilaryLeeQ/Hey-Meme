@@ -199,8 +199,22 @@ export const ChatBot: React.FC<ChatBotProps> = ({ apiKeys, showToast }) => {
       }
 
       // 1. Try Google Gemini Primary
-      const response = await chat.sendMessage({ message: promptToSend });
-      processResponse(response.text);
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: activePersona.systemInstruction,
+          message: userText
+        })
+      });
+
+      const data = await res.json();
+      const text =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "……我腦袋空白了";
+
+      processResponse(text);
+
 
     } catch (err: any) {
       console.warn("Gemini Chat Error:", err);
